@@ -6,6 +6,7 @@ interface Meal {
   meal: string;
   ingredients: string[];
   link: string;
+  description: string;
 }
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -49,7 +50,7 @@ export default async function handler(
       messages: [
         {
           role: 'system',
-          content: 'You are a JSON generator that only returns valid JSON arrays. Each array item should be a meal object with exactly these properties: "meal" (string), "ingredients" (array of strings), and "link" (string). Do not include any markdown formatting or additional text. The response should be a JSON array, not an object.'
+          content: 'You are a JSON generator that creates Magic: The Gathering themed meal descriptions. Return a JSON array where each item has these properties: "meal" (string), "ingredients" (array of strings), "link" (string), and "description" (a fantasy-themed description of the meal, STRICTLY between 80-120 characters, as if it were a magical dish from a fantasy tavern). Make the descriptions whimsical and fun, mentioning magical effects or fantasy elements. Do not include markdown formatting.'
         },
         {
           role: 'user',
@@ -92,9 +93,15 @@ export default async function handler(
 
       // Validate each meal object
       for (const meal of mealData) {
-        if (!meal.meal || !Array.isArray(meal.ingredients) || !meal.link) {
+        if (!meal.meal || !Array.isArray(meal.ingredients) || !meal.link || !meal.description) {
           console.error('Invalid meal object:', meal);
           throw new Error('Invalid meal object structure');
+        }
+        
+        // Validate description length
+        if (meal.description.length < 80 || meal.description.length > 120) {
+          console.error('Invalid description length:', meal.description.length);
+          throw new Error('Description must be between 80 and 120 characters');
         }
       }
 

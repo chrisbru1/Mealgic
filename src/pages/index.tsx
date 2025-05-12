@@ -6,6 +6,7 @@ interface Meal {
   ingredients: string[];
   link: string;
   imageUrl?: string;
+  description: string;
 }
 
 export default function Home() {
@@ -255,7 +256,7 @@ export default function Home() {
                         {!meal.imageUrl && <p>A delicious suggestion for your week!</p>}
                       </div>
                       <div className={styles['card-text-box']}>
-                        <p>Ready to explore this recipe? Click to see ingredients and details.</p>
+                        <p className={styles.fantasyDescription}>{meal.description || 'Ready to explore this recipe? Flip to see the ingredients, or click "Discard this meal" for a new one.'}</p>
                       </div>
                       <div className={styles['card-actions']}>
                         <button>View Ingredients</button>
