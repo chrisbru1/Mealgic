@@ -36,6 +36,14 @@ export default async function handler(
       return res.status(500).json({ error: 'OpenAI API key is not configured' });
     }
 
+    // Add validation for API key format
+    if (!process.env.OPENAI_API_KEY.startsWith('sk-') || process.env.OPENAI_API_KEY.length < 40) {
+      console.error('OpenAI API key appears to be in incorrect format');
+      return res.status(500).json({ error: 'OpenAI API key appears to be invalid' });
+    }
+
+    console.log('API key validation passed, attempting OpenAI request...');
+
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
