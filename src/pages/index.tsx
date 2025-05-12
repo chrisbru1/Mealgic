@@ -28,26 +28,41 @@ export default function Home() {
     );
   };
 
-  async function generateImageForMeal(mealName: string): Promise<string> {
-    try {
-      const response = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ mealName }),
-      });
+  async function generateImageForMeal(mealName: string, retries = 3): Promise<string> {
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        if (attempt > 0) {
+          // Exponential backoff: wait longer between each retry
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+        }
 
-      if (!response.ok) {
-        throw new Error('Failed to generate image');
+        const response = await fetch('/api/generate-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ mealName }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (response.status === 429 && attempt < retries - 1) {
+            console.log(`Rate limited on attempt ${attempt + 1}, retrying...`);
+            continue;
+          }
+          throw new Error(errorData.error || 'Failed to generate image');
+        }
+
+        const data = await response.json();
+        return data.imageUrl;
+      } catch (error) {
+        console.error(`Error generating image on attempt ${attempt + 1}:`, error);
+        if (attempt === retries - 1) {
+          return ''; // Return empty string after all retries fail
+        }
       }
-
-      const data = await response.json();
-      return data.imageUrl;
-    } catch (error) {
-      console.error('Error generating image:', error);
-      return ''; // Return empty string if image generation fails
     }
+    return ''; // Return empty string if all retries fail
   }
 
   async function fetchMealPlan() {
@@ -75,9 +90,11 @@ export default function Home() {
   
       const meals = await response.json() as Meal[];
       
-      // Generate images for each meal
+      // Generate images for each meal with a slight delay between requests
       const mealsWithImages = await Promise.all(
-        meals.map(async (meal) => {
+        meals.map(async (meal, index) => {
+          // Add a small delay between image requests to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, index * 2000));
           const imageUrl = await generateImageForMeal(meal.meal);
           return { ...meal, imageUrl };
         })

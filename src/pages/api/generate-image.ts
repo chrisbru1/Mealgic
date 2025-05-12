@@ -24,6 +24,7 @@ export default async function handler(
   }
 
   try {
+    console.log(`Attempting to generate image for meal: ${mealName}`);
     const response = await openai.images.generate({
       model: "dall-e-3",
       prompt: `Create a fantasy-style illustration of "${mealName}" as if it were art for a Magic: The Gathering card. The style should be painterly and mystical, with dramatic lighting and a magical atmosphere. The food should look appetizing but with a fantastical twist.`,
@@ -38,9 +39,27 @@ export default async function handler(
       throw new Error('No image URL in response');
     }
 
+    console.log(`Successfully generated image for meal: ${mealName}`);
     return res.status(200).json({ imageUrl: response.data[0].url });
   } catch (error: any) {
-    console.error('Error generating image:', error);
+    console.error(`Error generating image for meal "${mealName}":`, error);
+    
+    // Check for rate limiting
+    if (error.status === 429) {
+      return res.status(429).json({ 
+        error: 'Rate limit exceeded for image generation',
+        details: 'Too many requests. Please try again in a few moments.'
+      });
+    }
+
+    // Check for content policy violations
+    if (error.status === 400 && error.response?.data?.error?.code === 'content_policy_violation') {
+      return res.status(400).json({ 
+        error: 'Content policy violation',
+        details: 'The image request violated content policies. Please try a different meal name.'
+      });
+    }
+
     return res.status(500).json({ 
       error: 'Failed to generate image: ' + (error.message || 'Unknown error'),
       details: error.response?.data || error.message || 'No additional details available'
