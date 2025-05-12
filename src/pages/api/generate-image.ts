@@ -27,7 +27,7 @@ export default async function handler(
     console.log(`Attempting to generate image for meal: ${mealName}`);
     const response = await openai.images.generate({
       model: "dall-e-3",
-      prompt: `Create a fantasy-style illustration of "${mealName}" as if it were art for a Magic: The Gathering card. The style should be painterly and mystical, with dramatic lighting and a magical atmosphere. The food should look appetizing but with a fantastical twist.`,
+      prompt: `Create a fantasy-style illustration of "${mealName}" in the style of Magic: The Gathering card art. Make it mystical and appetizing.`,
       n: 1,
       size: "1024x1024",
       quality: "standard",

@@ -58,6 +58,9 @@ export default async function handler(
       ],
       max_tokens: 1000,
       temperature: 0.7,
+      presence_penalty: 0.1,
+      frequency_penalty: 0.1,
+      response_format: { type: "json_object" }
     });
 
     const llmResponse = completion.choices[0]?.message?.content;

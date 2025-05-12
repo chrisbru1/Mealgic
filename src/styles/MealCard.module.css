@@ -406,6 +406,28 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+.loadingMessage {
+  text-align: center;
+  padding: 40px;
+  background: rgba(38, 50, 77, 0.05);
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+.loadingMessage p {
+  margin: 0;
+  color: #26324d;
+  font-size: 1.2em;
+  font-weight: 500;
+}
+
+.loadingSubtext {
+  margin-top: 10px !important;
+  color: #4a5568 !important;
+  font-size: 0.9em !important;
+  font-weight: normal !important;
+}
+
 .loading-card {
   height: 100%;
   display: flex;
@@ -415,6 +437,9 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 20px;
+  text-align: center;
+  color: #26324d;
+  font-size: 1.1em;
 }
 
 .grocery-section {

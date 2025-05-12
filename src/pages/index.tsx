@@ -207,7 +207,10 @@ export default function Home() {
       <button onClick={fetchMealPlan}>Generate Meal Plan</button>
 
       {loading ? (
-        <p>Generating meal plan...</p>
+        <div className={styles.loadingMessage}>
+          <p>Generating meal plan - this may take up to 2 minutes...</p>
+          <p className={styles.loadingSubtext}>Using AI to create unique recipes and fantasy-style images</p>
+        </div>
       ) : error ? (
         <p style={{ color: 'red' }}>{error}</p>
       ) : mealPlan.length > 0 ? (
@@ -216,7 +219,7 @@ export default function Home() {
             <div key={index} className={styles['meal-card']}>
               {replacingMealIndices.includes(index) ? (
                 <div className={styles['loading-card']}>
-                  <p>Replacing meal...</p>
+                  <p>Replacing meal - this may take a minute...</p>
                 </div>
               ) : (
                 <>
@@ -288,7 +291,7 @@ export default function Home() {
           ))}
           <div className={styles['grocery-list-controls']}>
             {generatingGroceryList ? (
-              <p>Generating grocery list...</p>
+              <p>Organizing your magical ingredients list...</p>
             ) : (
               <button onClick={generateGroceryList}>Generate Grocery List</button>
             )}
