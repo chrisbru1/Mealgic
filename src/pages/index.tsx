@@ -176,7 +176,7 @@ export default function Home() {
       if (userPreferences) {
         replacementPrompt += ` that is ${userPreferences}`;
       }
-      replacementPrompt += ` Include a list of ingredients and a link to the recipe. Format this as a JSON array of one object with the keys: "meal" (string), "ingredients" (array of strings), and "link" (string).`;
+      replacementPrompt += ` Include a list of ingredients and a link to the recipe. Format this as a JSON object with the keys: "meal" (string), "ingredients" (array of strings), "link" (string), and "description" (string).`;
   
       const response = await fetch('/api/replace-meal', {
         method: 'POST',
@@ -192,9 +192,14 @@ export default function Home() {
       }
   
       const newMeal = await response.json() as Meal;
+
+      // Generate image for the new meal
+      const imageUrl = await generateImageForMeal(newMeal.meal);
+      const mealWithImage = { ...newMeal, imageUrl };
+      
       setMealPlan((prevMealPlan) => {
         const updatedMealPlan = [...prevMealPlan];
-        updatedMealPlan[indexToDiscard] = newMeal;
+        updatedMealPlan[indexToDiscard] = mealWithImage;
         return updatedMealPlan;
       });
     } catch (err: any) {
