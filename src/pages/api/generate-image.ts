@@ -5,7 +5,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse<{ imageUrl: string } | { error: string, details?: string | object }>
 ) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -16,6 +16,11 @@ export default async function handler(
 
   if (!mealName) {
     return res.status(400).json({ error: 'Meal name is required' });
+  }
+
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('OpenAI API key is not configured');
+    return res.status(500).json({ error: 'OpenAI API key is not configured' });
   }
 
   try {
@@ -29,12 +34,16 @@ export default async function handler(
     });
 
     if (!response.data?.[0]?.url) {
+      console.error('No image URL in response:', response);
       throw new Error('No image URL in response');
     }
 
     return res.status(200).json({ imageUrl: response.data[0].url });
   } catch (error: any) {
     console.error('Error generating image:', error);
-    return res.status(500).json({ error: 'Failed to generate image' });
+    return res.status(500).json({ 
+      error: 'Failed to generate image: ' + (error.message || 'Unknown error'),
+      details: error.response?.data || error.message || 'No additional details available'
+    });
   }
 } 

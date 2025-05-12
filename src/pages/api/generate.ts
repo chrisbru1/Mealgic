@@ -17,7 +17,7 @@ function cleanJsonResponse(response: string): string {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Meal[] | { error: string }>
+  res: NextApiResponse<Meal[] | { error: string, details?: string | object }>
 ) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -31,6 +31,11 @@ export default async function handler(
   }
 
   try {
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OpenAI API key is not configured');
+      return res.status(500).json({ error: 'OpenAI API key is not configured' });
+    }
+
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
@@ -50,7 +55,8 @@ export default async function handler(
     const llmResponse = completion.choices[0]?.message?.content;
 
     if (!llmResponse) {
-      return res.status(500).json({ error: 'Failed to generate meal plan' });
+      console.error('No response content from OpenAI');
+      return res.status(500).json({ error: 'No response from meal plan generation' });
     }
 
     try {
@@ -59,12 +65,14 @@ export default async function handler(
 
       // Validate it's an array
       if (!Array.isArray(mealData)) {
+        console.error('Response is not an array:', mealData);
         throw new Error('Response is not an array');
       }
 
       // Validate each meal object
       for (const meal of mealData) {
         if (!meal.meal || !Array.isArray(meal.ingredients) || !meal.link) {
+          console.error('Invalid meal object:', meal);
           throw new Error('Invalid meal object structure');
         }
       }
@@ -73,10 +81,13 @@ export default async function handler(
     } catch (e) {
       console.error('Failed to parse LLM response as JSON:', e);
       console.error('Raw response:', llmResponse);
-      return res.status(500).json({ error: 'Failed to parse meal plan response' });
+      return res.status(500).json({ error: 'Failed to parse meal plan response: ' + (e as Error).message });
     }
   } catch (error: any) {
     console.error('Error generating meal plan:', error);
-    return res.status(500).json({ error: 'Failed to generate meal plan' });
+    return res.status(500).json({ 
+      error: 'Failed to generate meal plan: ' + (error.message || 'Unknown error'),
+      details: error.response?.data || error.message || 'No additional details available'
+    });
   }
 }
