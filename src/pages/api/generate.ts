@@ -49,7 +49,7 @@ export default async function handler(
       messages: [
         {
           role: 'system',
-          content: 'You are a JSON generator that only returns valid JSON arrays. Each array item should be a meal object with exactly these properties: "meal" (string), "ingredients" (array of strings), and "link" (string). Do not include any markdown formatting or additional text.'
+          content: 'You are a JSON generator that only returns valid JSON arrays. Each array item should be a meal object with exactly these properties: "meal" (string), "ingredients" (array of strings), and "link" (string). Do not include any markdown formatting or additional text. The response should be a JSON array, not an object.'
         },
         {
           role: 'user',
@@ -59,8 +59,7 @@ export default async function handler(
       max_tokens: 1000,
       temperature: 0.7,
       presence_penalty: 0.1,
-      frequency_penalty: 0.1,
-      response_format: { type: "json_object" }
+      frequency_penalty: 0.1
     });
 
     const llmResponse = completion.choices[0]?.message?.content;
@@ -72,7 +71,18 @@ export default async function handler(
 
     try {
       const cleanedResponse = cleanJsonResponse(llmResponse);
-      const mealData = JSON.parse(cleanedResponse) as Meal[];
+      console.log('Cleaned response:', cleanedResponse);
+      let mealData: Meal[];
+      
+      try {
+        const parsedData = JSON.parse(cleanedResponse);
+        // Handle both array and object responses
+        mealData = Array.isArray(parsedData) ? parsedData : parsedData.meals || [parsedData];
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        console.error('Raw response:', llmResponse);
+        throw new Error('Failed to parse JSON response');
+      }
 
       // Validate it's an array
       if (!Array.isArray(mealData)) {

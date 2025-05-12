@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, JSX } from 'react';
 import styles from '../styles/MealCard.module.css';
 
 interface Meal {
@@ -11,7 +11,7 @@ interface Meal {
 export default function Home() {
   const [mealPlan, setMealPlan] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | JSX.Element | null>(null);
   const [numMeals, setNumMeals] = useState<number>(3);
   const [userPreferences, setUserPreferences] = useState<string>('');
   const [groceryList, setGroceryList] = useState<{ [key: string]: string[] }>({});
@@ -90,6 +90,10 @@ export default function Home() {
   
       const meals = await response.json() as Meal[];
       
+      if (!Array.isArray(meals) || meals.length === 0) {
+        throw new Error('Invalid meal plan response format');
+      }
+      
       // Generate images for each meal with a slight delay between requests
       const mealsWithImages = await Promise.all(
         meals.map(async (meal, index) => {
@@ -103,7 +107,18 @@ export default function Home() {
       setMealPlan(mealsWithImages);
     } catch (err: any) {
       console.error('Failed to fetch meal plan:', err);
-      setError(err.message || 'Failed to generate meal plan. Please try again.');
+      const errorMessage = err.message || 'Failed to generate meal plan. Please try again.';
+      setError(
+        <div className={styles.errorMessage}>
+          <p>{errorMessage}</p>
+          <button 
+            onClick={() => setError(null)} 
+            className={styles.dismissError}
+          >
+            Dismiss
+          </button>
+        </div>
+      );
     } finally {
       setLoading(false);
     }

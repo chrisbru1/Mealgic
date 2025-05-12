@@ -451,4 +451,38 @@
   border-bottom: 2px solid #0070f3;
   padding-bottom: 8px;
   margin-bottom: 16px;
+}
+
+.errorMessage {
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+  color: #991b1b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.errorMessage p {
+  margin: 0;
+  font-size: 1em;
+  line-height: 1.5;
+}
+
+.dismissError {
+  background: #991b1b;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s;
+}
+
+.dismissError:hover {
+  background: #7f1d1d;
 } 
