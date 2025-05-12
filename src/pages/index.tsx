@@ -134,7 +134,16 @@ export default function Home() {
         allIngredients.push(...meal.ingredients);
       });
 
-      const prompt = `Take the following list of ingredients: ${allIngredients.join(', ')}. Aggregate ingredients of the same type and group them by common grocery store sections such as "Produce", "Dairy", "Meat & Seafood", "Pantry", "Spices & Seasonings", "Frozen", etc. Return the grocery list as a JSON object where the keys are the section names and the values are arrays of the ingredients in that section, including estimated quantities if possible (e.g., "2 lemons", "1 dozen eggs").`;
+      const prompt = `Take this list of real recipe ingredients and organize them into a practical grocery list: ${allIngredients.join(', ')}. 
+      Group them by common grocery store sections such as "Produce", "Dairy", "Meat & Seafood", "Pantry", "Spices & Seasonings", "Frozen", etc. 
+      Combine similar ingredients and specify quantities where possible (e.g., "2 lemons", "1 dozen eggs"). 
+      Keep the ingredients exactly as they are but present the sections with fantasy-themed names, for example:
+      - "Produce" could be "Garden of Earthly Delights"
+      - "Meat & Seafood" could be "Hunter's Bounty"
+      - "Dairy" could be "Celestial Dairy"
+      - "Pantry" could be "Alchemist's Stores"
+      - "Spices & Seasonings" could be "Wizard's Spice Collection"
+      Return the grocery list as a JSON object where the keys are the fantasy-themed section names and the values are arrays of the real ingredients with quantities.`;
 
       const response = await fetch('/api/grocery-list', {
         method: 'POST',

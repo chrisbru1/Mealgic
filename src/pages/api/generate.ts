@@ -50,7 +50,12 @@ export default async function handler(
       messages: [
         {
           role: 'system',
-          content: 'You are a JSON generator that creates Magic: The Gathering themed meal descriptions. Return a JSON array where each item has these properties: "meal" (string), "ingredients" (array of strings), "link" (string), and "description" (a fantasy-themed description of the meal, between 50-150 characters, as if it were a magical dish from a fantasy tavern). Make the descriptions whimsical and fun, mentioning magical effects or fantasy elements. Do not include markdown formatting.'
+          content: 'You are a recipe generator that adds fantasy-themed descriptions to real recipes. Return a JSON array where each item has these properties:\n' +
+            '- "meal" (string): Use the actual name of a real, well-known recipe\n' +
+            '- "ingredients" (array of strings): List the real, specific ingredients needed for the recipe with approximate quantities\n' +
+            '- "link" (string): Provide a link to a reputable recipe website (like allrecipes.com, foodnetwork.com, epicurious.com, seriouseats.com) for the actual recipe\n' +
+            '- "description" (string): Create a fantasy-themed description (50-150 characters) that reimagines the real dish as if it were served in a magical tavern. Include magical effects or fantasy elements while keeping the actual dish recognizable.\n\n' +
+            'Focus on providing accurate, real-world recipes that people can actually cook, while only adding fantasy elements to the description.'
         },
         {
           role: 'user',
