@@ -28,6 +28,10 @@ export default async function handler(
       style: "vivid"
     });
 
+    if (!response.data?.[0]?.url) {
+      throw new Error('No image URL in response');
+    }
+
     return res.status(200).json({ imageUrl: response.data[0].url });
   } catch (error: any) {
     console.error('Error generating image:', error);
