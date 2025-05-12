@@ -50,7 +50,7 @@ export default async function handler(
       messages: [
         {
           role: 'system',
-          content: 'You are a JSON generator that creates Magic: The Gathering themed meal descriptions. Return a JSON array where each item has these properties: "meal" (string), "ingredients" (array of strings), "link" (string), and "description" (a fantasy-themed description of the meal, STRICTLY between 80-120 characters, as if it were a magical dish from a fantasy tavern). Make the descriptions whimsical and fun, mentioning magical effects or fantasy elements. Do not include markdown formatting.'
+          content: 'You are a JSON generator that creates Magic: The Gathering themed meal descriptions. Return a JSON array where each item has these properties: "meal" (string), "ingredients" (array of strings), "link" (string), and "description" (a fantasy-themed description of the meal, between 50-150 characters, as if it were a magical dish from a fantasy tavern). Make the descriptions whimsical and fun, mentioning magical effects or fantasy elements. Do not include markdown formatting.'
         },
         {
           role: 'user',
@@ -98,10 +98,15 @@ export default async function handler(
           throw new Error('Invalid meal object structure');
         }
         
-        // Validate description length
-        if (meal.description.length < 80 || meal.description.length > 120) {
+        // Validate description length with more flexible limits
+        if (meal.description.length < 50 || meal.description.length > 150) {
           console.error('Invalid description length:', meal.description.length);
-          throw new Error('Description must be between 80 and 120 characters');
+          // If description is too long or too short, truncate or pad it instead of throwing an error
+          if (meal.description.length > 150) {
+            meal.description = meal.description.substring(0, 147) + '...';
+          } else if (meal.description.length < 50) {
+            meal.description = meal.description + ' ' + 'A truly magical dish fit for any adventurer.'.substring(0, 50 - meal.description.length);
+          }
         }
       }
 
